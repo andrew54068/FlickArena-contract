@@ -1,49 +1,6 @@
-## Foundry
+# FlickArena
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
-
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
+FlickArena is a decentralized gaming platform built on blockchain technology. It allows users to engage in various games and tournaments, leveraging the power of cryptocurrency and smart contracts to ensure fair play and secure transactions. One of the popular games on FlickArena is the dart game 301, where players compete to reach exactly 301 points in the fewest number of darts.
 
 ### Deploy
 
@@ -57,18 +14,4 @@ npx hardhat ignition deploy ./ignition/modules/Deploy.ts --network chiliz_spicy
 
 ```shell
 npx hardhat verify --network chiliz_spicy
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
 ```
