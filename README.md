@@ -48,7 +48,15 @@ $ anvil
 ### Deploy
 
 ```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+source .env
+
+npx hardhat ignition deploy ./ignition/modules/Deploy.ts --network chiliz_spicy
+```
+
+### Verify
+
+```shell
+npx hardhat verify --network chiliz_spicy
 ```
 
 ### Cast

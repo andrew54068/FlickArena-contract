@@ -18,3 +18,11 @@ broadcast/
 
 # Node modules
 node_modules/
+
+# Hardhat files
+cache
+artifacts
+ignition
+
+# Yarn files
+yarn-error.log
