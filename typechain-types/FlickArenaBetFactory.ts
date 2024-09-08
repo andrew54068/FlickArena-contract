@@ -8,7 +8,7 @@ import type {
   BytesLike,
   CallOverrides,
   ContractTransaction,
-  Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -90,14 +90,14 @@ export interface FlickArenaBetFactory extends BaseContract {
     createGame(
       _targetScore: BigNumberish,
       _maxRounds: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
   };
 
   createGame(
     _targetScore: BigNumberish,
     _maxRounds: BigNumberish,
-    overrides?: Overrides & { from?: string }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -127,7 +127,7 @@ export interface FlickArenaBetFactory extends BaseContract {
     createGame(
       _targetScore: BigNumberish,
       _maxRounds: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
@@ -135,7 +135,7 @@ export interface FlickArenaBetFactory extends BaseContract {
     createGame(
       _targetScore: BigNumberish,
       _maxRounds: BigNumberish,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }

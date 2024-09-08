@@ -16,7 +16,8 @@ describe("FlickArenaBet", function () {
 
   beforeEach(async function () {
     // @ts-ignore
-    [host, player1, player2] = await ethers.getSigners();
+    [host, player2] = await ethers.getSigners();
+    player1 = host;
 
     const FlickArenaBetFactory = await ethers.getContractFactory(
       "FlickArenaBetFactory"
@@ -24,7 +25,10 @@ describe("FlickArenaBet", function () {
     factory = await FlickArenaBetFactory.deploy();
     await factory.waitForDeployment();
 
-    const tx = await factory.connect(host).createGame(TARGET_SCORE, MAX_ROUNDS);
+    // call createGame function with eth value
+    const tx = await factory
+      .connect(host)
+      .createGame(TARGET_SCORE, MAX_ROUNDS, { value: BET_AMOUNT });
     // @ts-ignore
     const receipt = await tx.wait();
 
@@ -45,15 +49,12 @@ describe("FlickArenaBet", function () {
     expect(await game.MAX_ROUNDS()).to.equal(MAX_ROUNDS);
   });
 
-  it("Should allow fist player to register and bet", async function () {
-    await game.connect(player1).registerAndBet({ value: BET_AMOUNT });
-
+  it("Fist player should have registed", async function () {
     expect(await game.prizePool()).to.equal(BET_AMOUNT);
     expect(await game.gameStarted()).to.be.false;
   });
 
   it("Should allow players to register and bet", async function () {
-    await game.connect(player1).registerAndBet({ value: BET_AMOUNT });
     await game.connect(player2).registerAndBet({ value: BET_AMOUNT });
 
     expect(await game.prizePool()).to.equal(BET_AMOUNT * 2n);
@@ -61,10 +62,6 @@ describe("FlickArenaBet", function () {
   });
 
   it("Should allow players to register and bet using receive function", async function () {
-    await player1.sendTransaction({
-      to: await game.getAddress(),
-      value: BET_AMOUNT,
-    });
     await player2.sendTransaction({
       to: await game.getAddress(),
       value: BET_AMOUNT,
@@ -213,12 +210,11 @@ describe("FlickArenaBet", function () {
     await setupGame();
 
     await expect(
-      game.connect(player1).flickDart(20, player1.address)
+      game.connect(player2).flickDart(20, player2.address)
     ).to.be.revertedWith("Only the host can perform this action");
   });
 
   async function setupGame() {
-    await game.connect(player1).registerAndBet({ value: BET_AMOUNT });
     await game.connect(player2).registerAndBet({ value: BET_AMOUNT });
   }
 });

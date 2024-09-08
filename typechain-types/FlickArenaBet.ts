@@ -46,6 +46,7 @@ export interface FlickArenaBetInterface extends utils.Interface {
     "players(uint256)": FunctionFragment;
     "prizePool()": FunctionFragment;
     "registerAndBet()": FunctionFragment;
+    "registerHost()": FunctionFragment;
   };
 
   getFunction(
@@ -67,6 +68,7 @@ export interface FlickArenaBetInterface extends utils.Interface {
       | "players"
       | "prizePool"
       | "registerAndBet"
+      | "registerHost"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -128,6 +130,10 @@ export interface FlickArenaBetInterface extends utils.Interface {
     functionFragment: "registerAndBet",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "registerHost",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "MAX_DARTS_PER_TURN",
@@ -174,6 +180,10 @@ export interface FlickArenaBetInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "prizePool", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "registerAndBet",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerHost",
     data: BytesLike
   ): Result;
 
@@ -345,6 +355,10 @@ export interface FlickArenaBet extends BaseContract {
     registerAndBet(
       overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
+
+    registerHost(
+      overrides?: PayableOverrides & { from?: string }
+    ): Promise<ContractTransaction>;
   };
 
   MAX_DARTS_PER_TURN(overrides?: CallOverrides): Promise<BigNumber>;
@@ -406,6 +420,10 @@ export interface FlickArenaBet extends BaseContract {
     overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
+  registerHost(
+    overrides?: PayableOverrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     MAX_DARTS_PER_TURN(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -463,6 +481,8 @@ export interface FlickArenaBet extends BaseContract {
     prizePool(overrides?: CallOverrides): Promise<BigNumber>;
 
     registerAndBet(overrides?: CallOverrides): Promise<void>;
+
+    registerHost(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -553,6 +573,10 @@ export interface FlickArenaBet extends BaseContract {
     registerAndBet(
       overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
+
+    registerHost(
+      overrides?: PayableOverrides & { from?: string }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -610,6 +634,10 @@ export interface FlickArenaBet extends BaseContract {
     prizePool(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     registerAndBet(
+      overrides?: PayableOverrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    registerHost(
       overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };

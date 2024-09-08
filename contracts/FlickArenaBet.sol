@@ -48,6 +48,20 @@ contract FlickArenaBet {
         registerAndBet();
     }
 
+    function registerHost() public payable {
+        require(!gameStarted, "Game already started");
+        require(players[0].addr == address(0), "Player already registered");
+        require(msg.value > 0, "Bet amount must be greater than 0");
+        players[0].addr = host;
+        players[0].score = TARGET_SCORE;
+        players[0].dartScores.push();
+        players[0].bet = msg.value;
+        prizePool += msg.value;
+
+        emit PlayerRegistered(host, 0);
+        emit BetPlaced(host, msg.value);
+    }
+
     function registerAndBet() public payable {
         require(!gameStarted, "Game already started");
         require(
@@ -56,18 +70,29 @@ contract FlickArenaBet {
         );
         require(msg.value > 0, "Bet amount must be greater than 0");
 
+        uint256 bet = msg.value;
+        if (msg.value < players[0].bet) {
+            // revert the transaction
+            revert(
+                "Bet amount must be greater than or equal to the host's bet"
+            );
+        } else if (msg.value > players[0].bet) {
+            // refund the player
+            bet = players[0].bet;
+            payable(msg.sender).transfer(msg.value - players[0].bet);
+        }
+
         uint256 playerIndex = players[0].addr == address(0) ? 0 : 1;
         players[playerIndex].addr = msg.sender;
         players[playerIndex].score = TARGET_SCORE;
         players[playerIndex].dartScores.push();
-        players[playerIndex].bet = msg.value;
-        prizePool += msg.value;
+        players[playerIndex].bet = bet;
+        prizePool += bet;
 
         emit PlayerRegistered(msg.sender, playerIndex);
-        emit BetPlaced(msg.sender, msg.value);
+        emit BetPlaced(msg.sender, bet);
 
         if (players[0].addr != address(0) && players[1].addr != address(0)) {
-            require(players[0].bet == players[1].bet, "Bets must match");
             gameStarted = true;
             currentRound = 1;
             emit GameStarted();
