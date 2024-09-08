@@ -7,11 +7,11 @@ FlickArena is a decentralized gaming platform built on blockchain technology. It
 ```shell
 source .env
 
-npx hardhat ignition deploy ./ignition/modules/Deploy.ts --network chiliz_spicy
+npx hardhat ignition deploy ./ignition/modules/DeployFactory.ts --network chiliz_spicy
 ```
 
 ### Verify
 
 ```shell
-npx hardhat verify --network chiliz_spicy
+npx hardhat verify --network chiliz_spicy <factory_address>
 ```

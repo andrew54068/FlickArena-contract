@@ -1,28 +1,15 @@
-import 'dotenv/config'
-
-import 'hardhat-deploy'
-import 'hardhat-contract-sizer'
-import { HardhatUserConfig } from 'hardhat/types'
-import '@nomiclabs/hardhat-ethers'
-import "@nomicfoundation/hardhat-ignition"
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+import "@typechain/hardhat";
+import "@nomicfoundation/hardhat-ethers";
+import "dotenv/config";
 
 const config: HardhatUserConfig = {
-  solidity: {
-    compilers: [
-        {
-            version: '0.8.22',
-            settings: {
-                optimizer: {
-                    enabled: true,
-                    runs: 200,
-                },
-            },
-        },
-    ],
-  },
+  solidity: '0.8.24',
   etherscan: {
     apiKey: {
       chiliz_spicy: "chiliz_spicy", // apiKey is not required, just set a placeholder
+      polygonAmoy: process.env.POLYGONSCAN_API_KEY!,
     },
     customChains: [
       {
@@ -40,6 +27,14 @@ const config: HardhatUserConfig = {
       url: 'https://spicy-rpc.chiliz.com',
       accounts: [process.env.PRIVATE_KEY!]
     },
+    amoy: {
+      url: "https://polygon-amoy-bor-rpc.publicnode.com",
+      accounts: [process.env.PRIVATE_KEY!],
+    },
+  },
+  typechain: {
+    outDir: "typechain-types",
+    target: "ethers-v5",
   },
 };
 

@@ -1,21 +1,18 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.22;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
 
-import {Script, console} from "forge-std/Script.sol";
-import {FlickArena301} from "../src/FlickArena301.sol";
+import {Script, console2} from "forge-std/Script.sol";
+import {FlickArenaBetFactory} from "../contracts/FlickArenaBetFactory.sol";
 
 contract DeployScript is Script {
-    FlickArena301 public flickArena301;
-
     function setUp() public {}
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        console.log("msg.sender", msg.sender);
-
-        flickArena301 = new FlickArena301();
+        FlickArenaBetFactory factory = new FlickArenaBetFactory();
+        console2.log("FlickArenaBetFactory deployed at:", address(factory));
 
         vm.stopBroadcast();
     }

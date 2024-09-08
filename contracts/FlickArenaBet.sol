@@ -1,32 +1,37 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.22;
+pragma solidity ^0.8.24;
 
-contract FlickArena301 {
+contract FlickArenaBet {
     struct Player {
         address addr;
         uint256 score;
-        uint256[][] dartScores; // Double layer array to store dart scores for each round
+        uint256[][] dartScores;
+        uint256 bet;
     }
 
     Player[2] public players;
     uint256 public currentPlayerIndex;
     uint256 public currentRound;
-    uint256 public constant MAX_ROUNDS = 10;
-    uint256 public constant TARGET_SCORE = 301;
+    uint256 public immutable MAX_ROUNDS;
+    uint256 public immutable TARGET_SCORE;
     uint256 public constant MAX_DARTS_PER_TURN = 3;
     bool public gameStarted;
     bool public gameEnded;
     address public host;
+    uint256 public prizePool;
 
     event PlayerRegistered(address player, uint256 playerIndex);
+    event BetPlaced(address player, uint256 amount);
     event GameStarted();
     event DartFlicked(address player, uint256 score);
-    event PlayerWon(address winner);
+    event PlayerWon(address winner, uint256 prize);
     event GameEnded(address winner);
-    event GameDrawn(); // New event for draw games
+    event GameDrawn(uint256 refundAmount);
 
-    constructor() {
-        host = msg.sender;
+    constructor(address _host, uint256 _targetScore, uint256 _maxRounds) {
+        host = _host;
+        TARGET_SCORE = _targetScore;
+        MAX_ROUNDS = _maxRounds;
     }
 
     modifier onlyHost() {
@@ -39,21 +44,30 @@ contract FlickArena301 {
         _;
     }
 
-    function registerPlayer() external {
+    receive() external payable {
+        registerAndBet();
+    }
+
+    function registerAndBet() public payable {
         require(!gameStarted, "Game already started");
         require(
             players[0].addr == address(0) || players[1].addr == address(0),
             "Both players already registered"
         );
+        require(msg.value > 0, "Bet amount must be greater than 0");
 
         uint256 playerIndex = players[0].addr == address(0) ? 0 : 1;
         players[playerIndex].addr = msg.sender;
         players[playerIndex].score = TARGET_SCORE;
-        players[playerIndex].dartScores.push(); // Initialize first round
+        players[playerIndex].dartScores.push();
+        players[playerIndex].bet = msg.value;
+        prizePool += msg.value;
 
         emit PlayerRegistered(msg.sender, playerIndex);
+        emit BetPlaced(msg.sender, msg.value);
 
         if (players[0].addr != address(0) && players[1].addr != address(0)) {
+            require(players[0].bet == players[1].bet, "Bets must match");
             gameStarted = true;
             currentRound = 1;
             emit GameStarted();
@@ -76,8 +90,10 @@ contract FlickArena301 {
 
         Player storage currentPlayer = players[currentPlayerIndex];
 
+        int256 playerCurrentScore = int256(players[currentPlayerIndex].score);
+
         // Update the player's score
-        currentPlayer.score -= score;
+        playerCurrentScore -= int256(score);
 
         // Record the individual dart score
         currentPlayer.dartScores[currentRound - 1].push(score);
@@ -85,20 +101,20 @@ contract FlickArena301 {
         emit DartFlicked(player, score);
 
         // Handle bust scenario
-        if (currentPlayer.score < 0) {
+        if (playerCurrentScore < 0) {
             // Bust, reset the round score
-            currentPlayer.score = accumulateScore(
-                currentPlayerIndex,
-                currentRound - 1
-            );
+            currentPlayer.score =
+                TARGET_SCORE -
+                accumulateScore(currentPlayerIndex, currentRound - 1);
             switchPlayer();
             return;
         }
 
+        currentPlayer.score = uint256(playerCurrentScore);
+
         if (currentPlayer.score == 0) {
             gameEnded = true;
-            emit PlayerWon(player);
-            emit GameEnded(player);
+            endGame(player);
         } else {
             // Check if the player has thrown 3 darts
             if (
@@ -111,20 +127,38 @@ contract FlickArena301 {
         }
     }
 
+    function endGame(address winner) internal {
+        gameEnded = true;
+        uint256 hostFee = prizePool / 100; // 1% fee
+        uint256 winnerPrize = prizePool - hostFee;
+
+        if (winner != address(0)) {
+            payable(host).transfer(hostFee);
+            payable(winner).transfer(winnerPrize);
+            emit PlayerWon(winner, winnerPrize);
+        } else {
+            // In case of a draw, refund players
+            uint256 refundAmount = prizePool / 2;
+            payable(players[0].addr).transfer(refundAmount);
+            payable(players[1].addr).transfer(refundAmount);
+            emit GameDrawn(refundAmount);
+        }
+
+        emit GameEnded(winner);
+    }
+
     function switchPlayer() internal {
         currentPlayerIndex = 1 - currentPlayerIndex;
         if (currentPlayerIndex == 0) {
             currentRound++;
             if (currentRound > MAX_ROUNDS) {
-                gameEnded = true;
                 if (players[0].score == players[1].score) {
-                    emit GameDrawn();
-                    emit GameEnded(address(0)); // Use address(0) to indicate a draw
+                    endGame(address(0)); // Draw
                 } else {
                     address winner = players[0].score < players[1].score
                         ? players[0].addr
                         : players[1].addr;
-                    emit GameEnded(winner);
+                    endGame(winner);
                 }
             } else {
                 players[0].dartScores.push();
